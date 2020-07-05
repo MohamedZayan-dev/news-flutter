@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../constants.dart';
 
 class DetailsItems extends StatelessWidget {
   String picUrl;
@@ -26,12 +25,15 @@ class DetailsItems extends StatelessWidget {
               ),
             ),
           ),
+          SizedBox(
+            height: 2,
+          ),
           Text(
             title,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
           ),
           SizedBox(
-            height: 2,
+            height: 6,
           ),
           Text(
             date,
@@ -41,7 +43,7 @@ class DetailsItems extends StatelessWidget {
             height: 6,
           ),
           Padding(
-            padding: EdgeInsets.only(left: 10),
+            padding: EdgeInsets.only(left: 10, top: 5),
             child: Text(bodyText),
           ),
         ],
