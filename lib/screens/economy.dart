@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:news/components/economy_politics_item_list.dart';
-import 'package:news/components/sports_health_item_list.dart';
 import 'package:news/model/main_screens.dart';
 import 'package:news/screens/details.dart';
 import 'package:news/services/newsData.dart';
@@ -14,6 +13,7 @@ class Economy extends StatefulWidget {
 
 class _EconomyState extends State<Economy> {
   List<MainScreenModel> items = [];
+  bool isLoaded = false;
 
   void updateUi() async {
     String picUrl;
@@ -48,39 +48,47 @@ class _EconomyState extends State<Economy> {
     }
   }
 
+  Future<bool> isUpdated() async {
+    await Future.delayed(Duration(seconds: 1));
+    return isLoaded = true;
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     updateUi();
+    isUpdated();
   }
 
   @override
   Widget build(BuildContext context) {
     appBloc.updateTitle('Economy');
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          child: EconomyPolitics(
-            picUrl: items[index].picUrl,
-            title: items[index].title,
-          ),
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Details(
+    return !isLoaded
+        ? Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                child: EconomyPolitics(
                   picUrl: items[index].picUrl,
                   title: items[index].title,
-                  date: items[index].date,
-                  bodyText: items[index].bodyText,
                 ),
-              ),
-            );
-          },
-        );
-      },
-      itemCount: items.length,
-    );
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Details(
+                        picUrl: items[index].picUrl,
+                        title: items[index].title,
+                        date: items[index].date,
+                        bodyText: items[index].bodyText,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            itemCount: items.length,
+          );
   }
 }

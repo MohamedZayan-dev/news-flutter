@@ -13,6 +13,7 @@ class Sports extends StatefulWidget {
 
 class _SportsState extends State<Sports> {
   List<MainScreenModel> items = [];
+  bool isLoaded = false;
 
   void updateUi() async {
     String picUrl;
@@ -45,39 +46,47 @@ class _SportsState extends State<Sports> {
     }
   }
 
+  Future<bool> isUpdated() async {
+    await Future.delayed(Duration(seconds: 1));
+    return isLoaded = true;
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     updateUi();
+    isUpdated();
   }
 
   @override
   Widget build(BuildContext context) {
     appBloc.updateTitle('Sport');
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          child: SportsHealth(
-            picUrl: items[index].picUrl,
-            title: items[index].title,
-          ),
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Details(
+    return !isLoaded
+        ? Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                child: SportsHealth(
                   picUrl: items[index].picUrl,
                   title: items[index].title,
-                  date: items[index].date,
-                  bodyText: items[index].bodyText,
                 ),
-              ),
-            );
-          },
-        );
-      },
-      itemCount: items.length,
-    );
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Details(
+                        picUrl: items[index].picUrl,
+                        title: items[index].title,
+                        date: items[index].date,
+                        bodyText: items[index].bodyText,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            itemCount: items.length,
+          );
   }
 }

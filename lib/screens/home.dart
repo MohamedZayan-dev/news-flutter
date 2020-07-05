@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:news/app_bloc.dart';
 import 'package:news/components/home_item_list.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'package:news/components/sports_health_item_list.dart';
 import 'package:news/model/main_screens.dart';
-import 'package:news/screens/sports.dart';
 import 'package:news/services/newsData.dart';
 
 import 'details.dart';
@@ -16,6 +13,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<MainScreenModel> items = [];
+  bool isLoaded = false;
 
   void updateUi() async {
     String picUrl;
@@ -49,41 +47,49 @@ class _HomeState extends State<Home> {
     }
   }
 
+  Future<bool> isUpdated() async {
+    await Future.delayed(Duration(seconds: 1));
+    return isLoaded = true;
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     print('init state');
     updateUi();
+    isUpdated();
   }
 
   @override
   Widget build(BuildContext context) {
     appBloc.updateTitle('Home');
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        print("index $index");
-        return GestureDetector(
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Details(
-                  picUrl: items[index].picUrl,
-                  title: items[index].title,
-                  date: items[index].date,
-                  bodyText: items[index].bodyText,
+    return !isLoaded
+        ? Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemBuilder: (context, index) {
+              print("index $index");
+              return GestureDetector(
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Details(
+                        picUrl: items[index].picUrl,
+                        title: items[index].title,
+                        date: items[index].date,
+                        bodyText: items[index].bodyText,
+                      ),
+                    ),
+                  );
+                },
+                child: HomeListItem(
+                  picSource: items[index].picUrl,
+                  text: items[index].title,
                 ),
-              ),
-            );
-          },
-          child: HomeListItem(
-            picSource: items[index].picUrl,
-            text: items[index].title,
-          ),
-        );
-      },
-      itemCount: items.length,
-    );
+              );
+            },
+            itemCount: items.length,
+          );
   }
 }

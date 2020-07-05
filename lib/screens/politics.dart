@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:news/components/economy_politics_item_list.dart';
-import 'package:news/components/sports_health_item_list.dart';
 import 'package:news/model/main_screens.dart';
 import 'package:news/services/newsData.dart';
 
@@ -14,6 +13,7 @@ class Politics extends StatefulWidget {
 
 class _PoliticsState extends State<Politics> {
   List<MainScreenModel> items = [];
+  bool isLoaded = false;
 
   void updateUi() async {
     String picUrl;
@@ -26,7 +26,8 @@ class _PoliticsState extends State<Politics> {
         if ((response)['response']['results'][i]['fields']['thumbnail'] != null)
           picUrl = (response)['response']['results'][i]['fields']['thumbnail'];
         else
-          picUrl = 'https://media.guim.co.uk/34f84041c36ce6462de63b317ce6732461885fd3/0_208_4250_2550/500.jpg';
+          picUrl =
+              'https://media.guim.co.uk/34f84041c36ce6462de63b317ce6732461885fd3/0_208_4250_2550/500.jpg';
 
         title = (response)['response']['results'][i]['webTitle'];
         date = (response)['response']['results'][i]['webPublicationDate'];
@@ -46,39 +47,47 @@ class _PoliticsState extends State<Politics> {
     }
   }
 
+  Future<bool> isUpdated() async {
+    await Future.delayed(Duration(seconds: 1));
+    return isLoaded = true;
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     updateUi();
+    isUpdated();
   }
 
   @override
   Widget build(BuildContext context) {
     appBloc.updateTitle('Politics');
-    return ListView.builder(
-      itemBuilder: (context, index) {
-        return GestureDetector(
-          child: EconomyPolitics(
-            picUrl: items[index].picUrl,
-            title: items[index].title,
-          ),
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Details(
+    return !isLoaded
+        ? Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                child: EconomyPolitics(
                   picUrl: items[index].picUrl,
                   title: items[index].title,
-                  date: items[index].date,
-                  bodyText: items[index].bodyText,
                 ),
-              ),
-            );
-          },
-        );
-      },
-      itemCount: items.length,
-    );
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Details(
+                        picUrl: items[index].picUrl,
+                        title: items[index].title,
+                        date: items[index].date,
+                        bodyText: items[index].bodyText,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            itemCount: items.length,
+          );
   }
 }
